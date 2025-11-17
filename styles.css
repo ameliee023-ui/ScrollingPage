@@ -1,3 +1,70 @@
+/* Fonts importieren - WICHTIG: Diese Fonts musst du lokal haben oder über Google Fonts einbinden */
+@font-face {
+    font-family: 'Ethnocentric';
+    src: url('fonts/ethnocentric-rg.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Satoshi';
+    src: url('fonts/Satoshi-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Satoshi';
+    src: url('fonts/Satoshi-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+
+.hero .title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  z-index: 3;
+  color: #e8e6e3;
+  text-align: center;
+  pointer-events: none;
+}
+
+
+/* "Discover our" - Satoshi Light mit mehr Abstand */
+.hero .title .small {
+    display: block;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: 300;
+    font-size: 1.2rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+/* "SOLAR SYSTEM" - Ethnocentric Regular */
+.hero .title .big {
+    display: block;
+    font-family: 'Ethnocentric', sans-serif;
+    font-weight: normal;
+    font-size: 4.5rem;
+    letter-spacing: 0.05em;
+    margin-top: 0.5em;
+    line-height: 1.1;
+}
+
+/* Autorenzeile - Satoshi Regular */
+.hero .title .authors {
+    display: block;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: 400;
+    font-size: 0.85rem;
+    margin-top: 3em;
+    opacity: 0.9;
+    letter-spacing: 0.02em;
+}
+
 /* Grundlayout */
 .wrapper,
 .content {
@@ -20,7 +87,7 @@
     background: radial-gradient(circle at center, #0b0c1c 0%, #000000 100%);
 }
 
-/* ZusÃƒÂ¤tzliche FarbverlÃƒÂ¤ufe */
+/* Zusätzliche Farbverläufe */
 .content .section.gradient-purple {
     background: linear-gradient(to bottom, #7f00ff, #e100ff);
 }
