@@ -1,4 +1,6 @@
 /* Fonts importieren - WICHTIG: Diese Fonts musst du lokal haben oder über Google Fonts einbinden */
+
+
 @font-face {
     font-family: 'Ethnocentric';
     src: url('fonts/ethnocentric-rg.woff2') format('woff2');
