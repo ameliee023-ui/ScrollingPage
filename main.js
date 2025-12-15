@@ -13,7 +13,7 @@ window.addEventListener('load', () => {
   })
     .to('.tunnel img', {
       scale: 2,
-      z: 500,
+      z: 650,
       rotationY: 10,
       transformOrigin: 'center center',
       ease: 'power1.inOut'

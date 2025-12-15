@@ -1,5 +1,7 @@
 /* Fonts importieren - WICHTIG: Diese Fonts musst du lokal haben oder über Google Fonts einbinden */
-
+body {
+    margin: 0;
+}
 
 @font-face {
     font-family: 'Ethnocentric';
@@ -91,11 +93,11 @@
 
 /* Zusätzliche Farbverläufe */
 .content .section.gradient-purple {
-    background: linear-gradient(to bottom, #7f00ff, #e100ff);
+    background: linear-gradient(to bottom, #000000 100%, #0b0c1c 0% );
 }
 
 .content .section.gradient-blue {
-    background: linear-gradient(to bottom, #00c6ff, #0072ff);
+    background: linear-gradient(to bottom, #0b0c1c 0%, #000000 100%);
 }
 
 /* Rohr & Sternenhimmel */
