@@ -1,4 +1,6 @@
-/* Fonts importieren - WICHTIG: Diese Fonts musst du lokal haben oder über Google Fonts einbinden */
+/* =========================
+   FONTS
+   ========================= */
 body {
     margin: 0;
 }
@@ -24,20 +26,29 @@ body {
     font-style: normal;
 }
 
-.hero .title {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  
-  z-index: 3;
-  color: #e8e6e3;
-  text-align: center;
-  pointer-events: none;
+/* =========================
+   HERO SECTION
+   ========================= */
+.section.hero {
+    background: radial-gradient(circle at center, #0b0c1c 0%, #000000 100%);
+    perspective: 1000px; /* 🔹 Perspektive für echten 3D-Zoom */
 }
 
+.hero .title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5; /* 🔹 über Tunnel */
+    color: #e8e6e3;
+    text-align: center;
+    pointer-events: none;
 
-/* "Discover our" - Satoshi Light mit mehr Abstand */
+    transform-style: preserve-3d; /* 🔹 3D-Zoom aktiv */
+    will-change: transform;        /* 🔹 Performance */
+}
+
+/* "Discover our" - Satoshi Light */
 .hero .title .small {
     display: block;
     font-family: 'Satoshi', sans-serif;
@@ -47,7 +58,7 @@ body {
     text-transform: uppercase;
 }
 
-/* "SOLAR SYSTEM" - Ethnocentric Regular */
+/* "SOLAR SYSTEM" - Ethnocentric */
 .hero .title .big {
     display: block;
     font-family: 'Ethnocentric', sans-serif;
@@ -58,7 +69,7 @@ body {
     line-height: 1.1;
 }
 
-/* Autorenzeile - Satoshi Regular */
+/* Autorenzeile */
 .hero .title .authors {
     display: block;
     font-family: 'Satoshi', sans-serif;
@@ -69,7 +80,9 @@ body {
     letter-spacing: 0.02em;
 }
 
-/* Grundlayout */
+/* =========================
+   GRUNDLAYOUT
+   ========================= */
 .wrapper,
 .content {
     position: relative;
@@ -86,21 +99,18 @@ body {
     height: 100vh;
 }
 
-/* Hero-Sektion mit Planetenthema */
-.content .section.hero {
-    background: radial-gradient(circle at center, #0b0c1c 0%, #000000 100%);
-}
-
 /* Zusätzliche Farbverläufe */
 .content .section.gradient-purple {
-    background: linear-gradient(to bottom, #000000 100%, #0b0c1c 0% );
+    background: linear-gradient(to bottom, #000000 100%, #0b0c1c 0%);
 }
 
 .content .section.gradient-blue {
     background: linear-gradient(to bottom, #0b0c1c 0%, #000000 100%);
 }
 
-/* Rohr & Sternenhimmel */
+/* =========================
+   TUNNEL / STERNENHIMMEL
+   ========================= */
 .image-container {
     width: 100%;
     height: 100vh;
@@ -123,4 +133,22 @@ body {
     height: 100%;
     object-fit: cover;
     object-position: center center;
+}
+
+/* =========================
+   PLANET SECTION
+   ========================= */
+.section.planets {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle at center, #05060f 0%, #000 80%);
+  overflow: hidden;
+  z-index: 1; /* unter der Schrift/Tunnel nur sichtbar, wenn Intro vorbei */
+}
+
+#planet-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
