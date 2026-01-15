@@ -5,24 +5,26 @@ gsap.registerPlugin(ScrollTrigger);
 // INTRO (DEIN CODE – SAUBER)
 // =========================
 gsap.timeline({
-  scrollTrigger: {
-    trigger: '.wrapper',
-    start: 'top top',
-    end: '+=300%', // 🔥 WICHTIG
-    pin: true,
-    scrub: true,
-    markers: false
-  }
-})
+    scrollTrigger: {
+      trigger: '.wrapper',
+      start: 'top top',
+      end: '+=300%',
+      pin: true,
+      scrub: true,
+      pinSpacing: false
+    }
 
-.to('.tunnel img', {
-  scale: 2,
-  z: 650,
-  rotationY: 10
-})
-.to('.hero .title', {
-  scale: 3.5
-}, '<');
+  }
+)
+
+  .to('.tunnel img', {
+    scale: 2,
+    z: 650,
+    rotationY: 10
+  })
+  .to('.hero .title', {
+    scale: 3.5
+  }, '<');
 
 // =========================
 // PLANETEN
@@ -87,5 +89,5 @@ gsap.timeline({
     pin: true
   }
 })
-.to(camera.position, { z: 10 })
-.to(orbit.rotation, { y: Math.PI * 2 }, 0);
+  .to(camera.position, { z: 10 })
+  .to(orbit.rotation, { y: Math.PI * 2 }, 0);
