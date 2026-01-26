@@ -12,51 +12,64 @@
 
 <!-- Tunnel Background -->
 <div class="image-container">
-<div class="tunnel">
-<img src="Materialien/Raumschiff.png" alt="Tunnel">
-</div>
+  <div class="tunnel">
+    <img src="Materialien/Raumschiff.png" alt="Tunnel">
+  </div>
 </div>
 
 <!-- Content -->
 <div class="wrapper">
-<div class="content">
-<section class="section hero">
-<h1 class="title">
-<span class="small">Discover our</span>
-<span class="big">SOLAR<br>SYSTEM</span>
-<span class="small">A View through</span>
-</h1>
-</section>
-<section class="section gradient-purple"></section>
-</div>
-</div>
-
-<!-- 3D Carousel -->
-<div id="drag-container">
-<div id="spin-container">
-<!-- Canvas Container für 3D Planeten -->
-</div>
-<div id="ground"></div>
-</div>
-
-<!-- Planet Detail View (Scroll-based) -->
-<div id="planet-detail-view">
-  <button class="close-button" id="close-detail-btn" aria-label="Close"></button>
-  <div class="detail-container">
-    <div class="detail-left">
-      <div class="detail-small-title">Discover the</div>
-      <h1 class="detail-planet-title" id="detail-planet-name">PLANET<br>EARTH</h1>
-      <p class="detail-planet-description" id="detail-planet-description">
-        The Earth is the only known planet with life.
-      </p>
-    </div>
-    <div class="detail-right">
-      <canvas class="detail-planet-canvas" id="detail-planet-canvas" width="800" height="800"></canvas>
-    </div>
+  <div class="content">
+    <section class="section hero">
+      <h1 class="title">
+        <span class="small">Discover our</span>
+        <span class="big">SOLAR<br>SYSTEM</span>
+        <span class="small">A View through</span>
+      </h1>
+    </section>
+    
+    <section class="section gradient-purple"></section>
+    
+    <section class="section carousel-section" id="carousel-section">
+      <!-- 3D Carousel -->
+      <div id="drag-container">
+        <div id="spin-container"></div>
+        <div id="ground"></div>
+      </div>
+      <div id="music-container"></div>
+    </section>
+    
+    <section class="section gradient-purple">
+      <div style="text-align: center; color: #fff; font-family: 'Satoshi', sans-serif; max-width: 800px; padding: 60px;">
+        <h2 style="font-family: 'Ethnocentric', sans-serif; font-size: 3rem; margin-bottom: 30px; letter-spacing: 0.05em;">NEXT SECTION</h2>
+        <p style="font-size: 1.2rem; opacity: 0.8; line-height: 1.8;">Hier kommt deine nächste Funktion...</p>
+      </div>
+    </section>
   </div>
 </div>
 
-<section class="section gradient-purple"></section>
+<!-- Scroll Indicator -->
+<div class="scroll-indicator" id="scroll-indicator">
+  <div>Scroll to explore</div>
+  <div class="scroll-arrow">↓</div>
+</div>
+
+<!-- Planet Detail Modal -->
+<div id="planet-detail-modal">
+  <button class="close-button" id="close-modal-btn" aria-label="Close"></button>
+  <div class="modal-content">
+    <div class="modal-left">
+      <div class="modal-small-title">Discover the</div>
+      <h1 class="modal-planet-title" id="modal-planet-name">PLANET<br>EARTH</h1>
+      <p class="modal-planet-description" id="modal-planet-description">
+        The Earth is the only known planet with life.
+      </p>
+    </div>
+    <div class="modal-right">
+      <canvas class="modal-planet-canvas" id="modal-planet-canvas" width="600" height="600"></canvas>
+    </div>
+  </div>
+</div>
 
 <!-- LIBS -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>

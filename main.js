@@ -9,6 +9,39 @@ space.innerHTML = `
 `;
 
 // =========================
+// TUNNEL INTRO ANIMATION
+// =========================
+console.clear();
+gsap.registerPlugin(ScrollTrigger);
+
+gsap.timeline({
+  scrollTrigger: {
+    trigger: '.wrapper',
+    start: 'top top',
+    end: '+=300%',
+    pin: true,
+    scrub: true,
+    markers: false
+  }
+})
+.to('.tunnel img', {
+  scale: 2,
+  z: 650,
+  rotationY: 10
+})
+.to('.hero .title', {
+  scale: 3.5
+}, '<')
+.to('.hero .title .small', {
+  opacity: 0,
+  y: -50
+}, '<')
+.to('.hero .title .big', {
+  opacity: 0,
+  y: -100
+}, '<0.2');
+
+// =========================
 // 3D PLANET CAROUSEL MIT GLB
 // =========================
 const planetFiles = [
@@ -70,18 +103,19 @@ const planetFiles = [
   }
 ];
 
-var radius = 400;
-var autoRotate = true;
-var rotateSpeed = -60;
-var canvasSize = 600;
+const INITIAL_RADIUS = 400;
+const MIN_RADIUS = 300;
+const MAX_RADIUS = 550;
+let radius = INITIAL_RADIUS;
+let canvasSize = 600;
 
-var odrag = document.getElementById('drag-container');
-var ospin = document.getElementById('spin-container');
+let odrag = document.getElementById('drag-container');
+let ospin = document.getElementById('spin-container');
 
 ospin.style.width = canvasSize + "px";
 ospin.style.height = canvasSize + "px";
 
-var ground = document.getElementById('ground');
+let ground = document.getElementById('ground');
 ground.style.width = radius * 3 + "px";
 ground.style.height = radius * 3 + "px";
 
@@ -161,126 +195,6 @@ planetFiles.forEach((planetData, index) => {
   canvas.style.filter = `drop-shadow(0 0 15px rgba(${planetData.glowColor}, 0.3)) drop-shadow(0 0 30px rgba(${planetData.glowColor}, 0.2))`;
 });
 
-// =========================
-// TUNNEL INTRO ANIMATION (ULTRA SMOOTH)
-// =========================
-console.clear();
-gsap.registerPlugin(ScrollTrigger);
-
-// Wait for DOM to be ready before initializing GSAP
-window.addEventListener('load', function() {
-  
-  // Smoother ScrollTrigger defaults
-  ScrollTrigger.defaults({
-    ease: "power3.inOut"
-  });
-
-  // Smooth tunnel zoom with multiple layers
-  const tunnelTimeline = gsap.timeline({
-    scrollTrigger: {
-      trigger: '.wrapper',
-      start: 'top top',
-      end: '+=400%',
-      pin: true,
-      scrub: 1.5,
-      markers: false,
-      anticipatePin: 1
-    }
-  });
-
-  tunnelTimeline
-    .to('.tunnel img', {
-      scale: 2.5,
-      z: 800,
-      rotationY: 15,
-      ease: 'power2.inOut'
-    })
-    .to('.hero .title .small', {
-      opacity: 0,
-      y: -30,
-      ease: 'power3.in'
-    }, 0)
-    .to('.hero .title .big', {
-      scale: 4,
-      opacity: 0,
-      y: -50,
-      ease: 'power3.in'
-    }, 0.1);
-
-  // Multi-layer parallax for starfield
-  gsap.to('.stars', {
-    scrollTrigger: {
-      trigger: '.wrapper',
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 2
-    },
-    y: 100,
-    ease: 'none'
-  });
-
-  gsap.to('.twinkling', {
-    scrollTrigger: {
-      trigger: '.wrapper',
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 1.5
-    },
-    y: 50,
-    ease: 'none'
-  });
-
-  gsap.to('.nebula', {
-    scrollTrigger: {
-      trigger: '.wrapper',
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 3
-    },
-    y: -80,
-    scale: 1.2,
-    ease: 'none'
-  });
-
-  // Smooth carousel entrance
-  gsap.fromTo('#drag-container', 
-    {
-      opacity: 0,
-      scale: 0.8,
-      y: 100
-    },
-    {
-      scrollTrigger: {
-        trigger: '.gradient-purple',
-        start: 'top 80%',
-        end: 'top 30%',
-        scrub: 2
-      },
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      ease: 'power3.out'
-    }
-  );
-
-  // Smooth info container reveal - only if element exists
-  const planetInfo = document.querySelector('#planet-info-container');
-  if (planetInfo) {
-    gsap.from('#planet-info-container', {
-      scrollTrigger: {
-        trigger: '.gradient-purple',
-        start: 'top 50%',
-        end: 'top 20%',
-        scrub: 1.5
-      },
-      opacity: 0,
-      y: 80,
-      scale: 0.9,
-      ease: 'power2.out'
-    });
-  }
-});
-
 function init(delayTime) {
   const canvases = document.querySelectorAll('.planet-canvas');
   canvases.forEach((canvas, i) => {
@@ -293,10 +207,9 @@ function init(delayTime) {
 
 setTimeout(() => init(), 1500);
 
-let previousFrontPlanetIndex = null;
-let stableFrontPlanetIndex = null;
-let stabilityCounter = 0;
-const STABILITY_THRESHOLD = 10;
+let currentRotation = 0;
+let stableFrontPlanetIndex = 0;
+let carouselLocked = false;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -314,57 +227,20 @@ function animate() {
 animate();
 
 function updateFrontPlanet() {
-  const centerX = window.innerWidth / 2;
-  const centerY = window.innerHeight / 2;
+  const numPlanets = planetScenes.length;
+  const degreesPerPlanet = 360 / numPlanets;
   
-  let closestPlanet = null;
-  let minDistance = Infinity;
-  let maxZ = -Infinity;
+  // Normalisiere die Rotation auf 0-360 Grad
+  let normalizedRotation = currentRotation % 360;
+  if (normalizedRotation < 0) normalizedRotation += 360;
   
-  planetScenes.forEach((item) => {
-    const canvas = item.canvas;
-    const transform = canvas.style.transform;
-    const zMatch = transform.match(/translateZ\(([^)]+)\)/);
-    const zValue = zMatch ? parseFloat(zMatch[1]) : 0;
-    if (zValue > maxZ) {
-      maxZ = zValue;
-    }
-  });
+  // Berechne welcher Planet vorne ist (mit Offset-Korrektur)
+  // Da wir bei 0° starten und nach rechts drehen, müssen wir invertieren
+  const adjustedRotation = (360 - normalizedRotation) % 360;
+  const frontIndex = Math.round(adjustedRotation / degreesPerPlanet) % numPlanets;
   
-  planetScenes.forEach((item, index) => {
-    const canvas = item.canvas;
-    const rect = canvas.getBoundingClientRect();
-    const planetCenterX = rect.left + rect.width / 2;
-    const planetCenterY = rect.top + rect.height / 2;
-    
-    const distance = Math.sqrt(
-      Math.pow(planetCenterX - centerX, 2) + 
-      Math.pow(planetCenterY - centerY, 2)
-    );
-    
-    const transform = canvas.style.transform;
-    const zMatch = transform.match(/translateZ\(([^)]+)\)/);
-    const zValue = zMatch ? parseFloat(zMatch[1]) : 0;
-    
-    if (Math.abs(zValue - maxZ) < 100) {
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestPlanet = { item, rect, index, zValue };
-      }
-    }
-  });
-  
-  const currentFrontPlanetIndex = closestPlanet ? closestPlanet.index : null;
-  
-  if (currentFrontPlanetIndex === previousFrontPlanetIndex) {
-    stabilityCounter++;
-  } else {
-    stabilityCounter = 0;
-    previousFrontPlanetIndex = currentFrontPlanetIndex;
-  }
-  
-  if (stabilityCounter >= STABILITY_THRESHOLD && currentFrontPlanetIndex !== stableFrontPlanetIndex) {
-    stableFrontPlanetIndex = currentFrontPlanetIndex;
+  if (frontIndex !== stableFrontPlanetIndex) {
+    stableFrontPlanetIndex = frontIndex;
     
     planetScenes.forEach((item, index) => {
       const canvas = item.canvas;
@@ -375,51 +251,42 @@ function updateFrontPlanet() {
         canvas.style.opacity = '1';
         canvas.classList.add('front-planet');
         canvas.style.filter = `drop-shadow(0 0 20px rgba(${planetData.glowColor}, 0.5)) drop-shadow(0 0 40px rgba(${planetData.glowColor}, 0.3)) drop-shadow(0 0 60px rgba(${planetData.glowColor}, 0.2))`;
+        canvas.style.zIndex = '100';
       } else {
         canvas.style.opacity = '0.6';
         canvas.classList.remove('front-planet');
         canvas.style.filter = `drop-shadow(0 0 15px rgba(${planetData.glowColor}, 0.3)) drop-shadow(0 0 30px rgba(${planetData.glowColor}, 0.2))`;
+        canvas.style.zIndex = '1';
       }
     });
   }
   
   planetScenes.forEach((item, index) => {
     const canvas = item.canvas;
-    const transform = canvas.style.transform;
-    const zMatch = transform.match(/translateZ\(([^)]+)\)/);
-    const zValue = zMatch ? parseFloat(zMatch[1]) : 0;
-    
     const isFrontPlanet = index === stableFrontPlanetIndex;
-    const isInFrontArea = Math.abs(zValue - maxZ) < 100;
     
-    let scale;
-    if (isFrontPlanet && isInFrontArea) {
-      scale = 1.8;
-    } else if (isInFrontArea) {
-      scale = 0.8;
+    const baseTransform = canvas.style.transform.replace(/scale\([^)]*\)/g, '').trim();
+    
+    if (isFrontPlanet) {
+      canvas.style.transform = baseTransform + ' scale(1.8)';
     } else {
-      scale = 0.5;
+      canvas.style.transform = baseTransform + ' scale(0.5)';
     }
-    
-    canvas.style.transform = canvas.style.transform.replace(/scale\([^)]*\)/g, '') + ` scale(${scale})`;
   });
   
-  if (stableFrontPlanetIndex !== null && closestPlanet && closestPlanet.index === stableFrontPlanetIndex) {
-    const { item, rect } = closestPlanet;
+  if (stableFrontPlanetIndex !== null) {
+    const item = planetScenes[stableFrontPlanetIndex];
     const planetData = item.planetData;
+    const canvas = item.canvas;
+    const rect = canvas.getBoundingClientRect();
     
-    // Die Mitte des Planeten auf der X-Achse
     const planetCenterX = rect.left + rect.width / 2;
-    
-    // Der untere Rand des Planeten-Canvas (getBoundingClientRect berücksichtigt bereits das Scaling!)
-    const planetBottom = rect.bottom;
-    
-    // Negativer Abstand - Text überlappt leicht mit dem Planeten
-    const fixedOffset = -20;
+    const planetCenterY = rect.top + rect.height / 2;
+    const fixedOffset = 200;
     
     infoContainer.style.display = 'block';
     infoContainer.style.left = planetCenterX + 'px';
-    infoContainer.style.top = (planetBottom + fixedOffset) + 'px';
+    infoContainer.style.top = (planetCenterY + fixedOffset) + 'px';
     
     if (infoContainer.dataset.currentPlanet !== planetData.name) {
       infoContainer.dataset.currentPlanet = planetData.name;
@@ -434,190 +301,206 @@ function updateFrontPlanet() {
 }
 
 // =========================
-// SMOOTH SCROLL TRANSITION TO DETAIL VIEW
+// SCROLL-BASIERTE STEUERUNG
 // =========================
-let detailPlanetScene = null;
-let isTransitioning = false;
+let tX = 0;
+let tY = 10;
+const carouselSection = document.getElementById('carousel-section');
+const scrollIndicator = document.getElementById('scroll-indicator');
 
-function openDetailView(planetName) {
-  if (isTransitioning) return;
-  isTransitioning = true;
+function applyTransform(obj) {
+  if(tY > 180) tY = 180;
+  if(tY < 0) tY = 0;
+  obj.style.transform = "rotateX(" + (-tY) + "deg) rotateY(" + (tX) + "deg)";
+}
+
+// Initiale Rotation setzen
+applyTransform(odrag);
+
+let hasCompletedRotation = false;
+let isCarouselActive = false;
+
+// Prüfe ob Carousel aktiv ist
+function checkCarouselActive() {
+  const carouselRect = carouselSection.getBoundingClientRect();
+  isCarouselActive = carouselRect.top <= 100 && carouselRect.bottom >= window.innerHeight - 100;
   
-  console.log('Opening detail view for:', planetName);
+  if (isCarouselActive && !hasCompletedRotation) {
+    scrollIndicator.classList.add('hidden');
+  } else if (!isCarouselActive) {
+    scrollIndicator.classList.remove('hidden');
+  }
+}
+
+// Überwache Scroll-Position
+let scrollTimeout;
+window.addEventListener('scroll', function() {
+  clearTimeout(scrollTimeout);
+  scrollTimeout = setTimeout(checkCarouselActive, 10);
+});
+
+// Initiale Prüfung
+checkCarouselActive();
+
+// Mausrad für Rotation
+document.addEventListener('wheel', function(e) {
+  checkCarouselActive();
+  
+  if (isCarouselActive && !hasCompletedRotation) {
+    // VERHINDERE KOMPLETT SCROLLEN während Carousel aktiv
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Shift + Scroll = Zoom
+    if (e.shiftKey) {
+      const delta = e.deltaY / 20;
+      const newRadius = radius - delta;
+      
+      if (newRadius >= MIN_RADIUS && newRadius <= MAX_RADIUS) {
+        radius = newRadius;
+        init(0);
+      }
+    } 
+    // Normales Scroll = Rotation
+    else {
+      const rotationAmount = e.deltaY * 0.15;
+      currentRotation += rotationAmount;
+      tX += rotationAmount;
+      applyTransform(odrag);
+      
+      const totalRotated = Math.abs(currentRotation);
+      
+      // Nach 360° automatisch zur nächsten Section scrollen
+      if (totalRotated >= 360 && !hasCompletedRotation) {
+        hasCompletedRotation = true;
+        carouselLocked = true;
+        
+        console.log('🎉 Volle Drehung abgeschlossen!');
+        
+        // Smooth scroll zur nächsten Section
+        setTimeout(() => {
+          const nextSection = carouselSection.nextElementSibling;
+          if (nextSection) {
+            nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 500);
+      }
+    }
+  }
+}, { passive: false });
+
+// Verhindere auch Touchpad-Scroll im Carousel
+document.addEventListener('touchmove', function(e) {
+  if (isCarouselActive && !hasCompletedRotation) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// =========================
+// MODAL FUNCTIONS
+// =========================
+let modalPlanetScene = null;
+
+function openModal(planetName) {
+  console.log('Opening modal for:', planetName);
   
   const planetData = planetFiles.find(p => p.name === planetName);
   if (!planetData) {
     console.error('Planet not found:', planetName);
-    isTransitioning = false;
     return;
   }
   
-  const detailView = document.getElementById('planet-detail-view');
-  const dragContainer = document.getElementById('drag-container');
-  const infoContainer = document.getElementById('planet-info-container');
-  
-  // Ultra smooth fade-out with stagger
-  gsap.to(infoContainer, {
-    opacity: 0,
-    y: 30,
-    scale: 0.95,
-    duration: 0.6,
-    ease: 'power3.in'
-  });
-  
-  // Smooth carousel exit with blur
-  gsap.to(dragContainer, {
-    opacity: 0,
-    scale: 0.85,
-    y: -80,
-    filter: 'blur(10px)',
-    duration: 1,
-    ease: 'power3.inOut',
-    onComplete: () => {
-      dragContainer.style.pointerEvents = 'none';
-    }
-  });
-  
-  setTimeout(() => {
-    detailView.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    const titleEl = document.getElementById('detail-planet-name');
-    const descEl = document.getElementById('detail-planet-description');
-    
-    if (titleEl) titleEl.innerHTML = `PLANET<br>${planetData.name.toUpperCase()}`;
-    if (descEl) descEl.textContent = planetData.longDescription;
-    
-    const detailCanvas = document.getElementById('detail-planet-canvas');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.z = 4;
-    
-    const renderer = new THREE.WebGLRenderer({ 
-      canvas: detailCanvas,
-      alpha: true,
-      antialias: true
-    });
-    renderer.setSize(800, 800);
-    
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-    
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 3, 5);
-    scene.add(directionalLight);
-    
-    let planetModel = null;
-    
-    loader.load(
-      planetData.path,
-      function(gltf) {
-        planetModel = gltf.scene;
-        const box = new THREE.Box3().setFromObject(planetModel);
-        const center = box.getCenter(new THREE.Vector3());
-        planetModel.position.sub(center);
-        const size = box.getSize(new THREE.Vector3()).length();
-        const scale = 2 / size;
-        planetModel.scale.setScalar(scale);
-        scene.add(planetModel);
-      },
-      undefined,
-      function(error) {
-        console.error('Error loading detail planet:', error);
-        const geometry = new THREE.SphereGeometry(1, 32, 32);
-        const material = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(Math.random(), Math.random(), Math.random())
-        });
-        planetModel = new THREE.Mesh(geometry, material);
-        scene.add(planetModel);
-      }
-    );
-    
-    detailCanvas.style.filter = `drop-shadow(0 0 30px rgba(${planetData.glowColor}, 0.6)) drop-shadow(0 0 60px rgba(${planetData.glowColor}, 0.4))`;
-    
-    function animateDetail() {
-      if (!detailView.classList.contains('active')) return;
-      requestAnimationFrame(animateDetail);
-      if (planetModel) {
-        planetModel.rotation.y += 0.005;
-      }
-      renderer.render(scene, camera);
-    }
-    animateDetail();
-    
-    detailPlanetScene = { scene, renderer };
-    
-    isTransitioning = false;
-    
-  }, 600);
-}
-
-function closeDetailView() {
-  console.log('Closing detail view');
-  const detailView = document.getElementById('planet-detail-view');
-  const dragContainer = document.getElementById('drag-container');
-  const infoContainer = document.getElementById('planet-info-container');
-  
-  // Smooth fade-out of detail view
-  gsap.to(detailView, {
-    opacity: 0,
-    duration: 0.6,
-    ease: 'power2.in',
-    onComplete: () => {
-      if (detailView) {
-        detailView.classList.remove('active');
-        // Reset opacity for next time
-        gsap.set(detailView, { opacity: 1 });
-      }
-    }
-  });
-  
-  // Clean up Three.js scene properly
-  if (detailPlanetScene) {
-    // Dispose of all geometries, materials, and textures
-    detailPlanetScene.scene.traverse((object) => {
-      if (object.geometry) {
-        object.geometry.dispose();
-      }
-      if (object.material) {
-        if (Array.isArray(object.material)) {
-          object.material.forEach(material => material.dispose());
-        } else {
-          object.material.dispose();
-        }
-      }
-    });
-    
-    detailPlanetScene.scene.clear();
-    detailPlanetScene.renderer.dispose();
-    detailPlanetScene = null;
+  const modal = document.getElementById('planet-detail-modal');
+  if (!modal) {
+    console.error('Modal element not found');
+    return;
   }
   
-  setTimeout(() => {
-    dragContainer.style.pointerEvents = 'all';
-    dragContainer.style.filter = 'blur(0px)';
-    
-    // Smooth carousel return
-    gsap.to(dragContainer, {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      filter: 'blur(0px)',
-      duration: 1.2,
-      ease: 'power3.out'
-    });
-    
-    gsap.to(infoContainer, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: 0.8,
-      delay: 0.4,
-      ease: 'power3.out'
-    });
-    
-    document.body.style.overflow = 'auto';
-  }, 300);
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  
+  const titleEl = document.getElementById('modal-planet-name');
+  const descEl = document.getElementById('modal-planet-description');
+  
+  if (titleEl) titleEl.innerHTML = `PLANET<br>${planetData.name.toUpperCase()}`;
+  if (descEl) descEl.textContent = planetData.longDescription;
+  
+  const canvas = document.getElementById('modal-planet-canvas');
+  if (!canvas) {
+    console.error('Modal canvas not found');
+    return;
+  }
+  
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+  camera.position.z = 4;
+  
+  const renderer = new THREE.WebGLRenderer({ 
+    canvas: canvas,
+    alpha: true,
+    antialias: true
+  });
+  renderer.setSize(600, 600);
+  
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
+  
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  directionalLight.position.set(5, 3, 5);
+  scene.add(directionalLight);
+  
+  let planetModel = null;
+  
+  loader.load(
+    planetData.path,
+    function(gltf) {
+      planetModel = gltf.scene;
+      const box = new THREE.Box3().setFromObject(planetModel);
+      const center = box.getCenter(new THREE.Vector3());
+      planetModel.position.sub(center);
+      const size = box.getSize(new THREE.Vector3()).length();
+      const scale = 2 / size;
+      planetModel.scale.setScalar(scale);
+      scene.add(planetModel);
+    },
+    undefined,
+    function(error) {
+      console.error('Error loading planet model:', error);
+      const geometry = new THREE.SphereGeometry(1, 32, 32);
+      const material = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(Math.random(), Math.random(), Math.random())
+      });
+      planetModel = new THREE.Mesh(geometry, material);
+      scene.add(planetModel);
+    }
+  );
+  
+  function animateModal() {
+    if (!modal.classList.contains('active')) return;
+    requestAnimationFrame(animateModal);
+    if (planetModel) {
+      planetModel.rotation.y += 0.005;
+    }
+    renderer.render(scene, camera);
+  }
+  animateModal();
+  
+  modalPlanetScene = { scene, renderer };
+}
+
+function closeModal() {
+  console.log('Closing modal');
+  const modal = document.getElementById('planet-detail-modal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+  document.body.style.overflow = 'auto';
+  
+  if (modalPlanetScene) {
+    modalPlanetScene.scene.clear();
+    modalPlanetScene.renderer.dispose();
+    modalPlanetScene = null;
+  }
 }
 
 // Event Listeners
@@ -626,81 +509,18 @@ document.addEventListener('click', function(e) {
     const planetName = e.target.dataset.planet;
     console.log('Button clicked for planet:', planetName);
     if (planetName) {
-      openDetailView(planetName);
+      openModal(planetName);
     }
   }
   
-  if (e.target && e.target.id === 'close-detail-btn') {
-    closeDetailView();
+  if (e.target && e.target.id === 'close-modal-btn') {
+    closeModal();
   }
 });
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
-    closeDetailView();
+    closeModal();
   }
 });
 
-// =========================
-// CAROUSEL CONTROLS
-// =========================
-function applyTranform(obj) {
-  if(tY > 180) tY = 180;
-  if(tY < 0) tY = 0;
-  obj.style.transform = "rotateX(" + (-tY) + "deg) rotateY(" + (tX) + "deg)";
-}
-
-function playSpin(yes) {
-  ospin.style.animationPlayState = (yes ? 'running' : 'paused');
-}
-
-var sX, sY, nX, nY, desX = 0, desY = 0, tX = 0, tY = 10;
-
-if (autoRotate) {
-  var animationName = (rotateSpeed > 0 ? 'spin' : 'spinRevert');
-  ospin.style.animation = `${animationName} ${Math.abs(rotateSpeed)}s infinite linear`;
-}
-
-document.onpointerdown = function(e) {
-  if (isTransitioning) return false;
-  clearInterval(odrag.timer);
-  e = e || window.event;
-  var sX = e.clientX, sY = e.clientY;
-  
-  this.onpointermove = function(e) {
-    e = e || window.event;
-    var nX = e.clientX, nY = e.clientY;
-    desX = nX - sX;
-    desY = nY - sY;
-    tX += desX * 0.1;
-    tY += desY * 0.1;
-    applyTranform(odrag);
-    sX = nX;
-    sY = nY;
-  };
-  
-  this.onpointerup = function(e) {  
-    odrag.timer = setInterval(function() {
-      desX *= 0.95;
-      desY *= 0.95;
-      tX += desX * 0.1;
-      tY += desY * 0.1;
-      applyTranform(odrag);
-      playSpin(false);
-      if (Math.abs(desX) < 0.5 && Math.abs(desY) < 0.5) {
-        clearInterval(odrag.timer);
-        playSpin(true);
-      }
-    }, 17);
-    this.onpointermove = this.onpointerup = null;
-  };
-  return false;
-};
-
-document.onmousewheel = function(e) {
-  if (isTransitioning) return false;
-  e = e || window.event;
-  var d = e.wheelDelta / 20 || -e.detail;
-  radius += d;
-  init(1);
-};
