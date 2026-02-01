@@ -1260,8 +1260,8 @@ updateActiveNav();
     end: '+=300%',               // Wrapper ist für 300% gepinnt
     scrub: true,
     onUpdate: (self) => {
-      // Triggere bei 75% des Scroll-Progress - mehr Abstand zum Planeten-Wheel
-      if (self.progress > 0.60 && !hasAnimated && asteroid) {
+      // Triggere bei 65% des Scroll-Progress - früher Start für mehr Zeit
+      if (self.progress > 0.65 && !hasAnimated && asteroid) {
         hasAnimated = true;
         console.log('🪨 Starting asteroid animation from RIGHT! Progress:', self.progress);
         
@@ -1399,7 +1399,7 @@ updateActiveNav();
     
     // Untertitel
     const subtitle = document.createElement('p');
-    subtitle.textContent = 'WHAT\'S INSIDE';
+    subtitle.textContent = 'WHAT\'S FASCINATING';
     subtitle.style.fontFamily = "'Satoshi', sans-serif";
     subtitle.style.fontSize = 'clamp(0.9rem, 2vw, 1.2rem)';
     subtitle.style.color = 'rgba(255, 255, 255, 0.7)';
