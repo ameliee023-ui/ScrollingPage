@@ -1,3 +1,6 @@
+/* FINAL VERSION 20260131_092704 */
+/* Animationen von links: -100px, -120px, -80px */
+/* Bounce-Effekt mit cubic-bezier(0.34, 1.56, 0.64, 1) */
 /* =========================
    RESET
    ========================= */
@@ -16,6 +19,141 @@ body {
   padding: 0;
   background: #000;
   overflow-x: hidden;
+}
+
+/* =========================
+   NAVIGATION MENU
+   ========================= */
+.main-navigation {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;  /* Immer ganz oben */
+  pointer-events: none;
+}
+
+.nav-items {
+  display: flex;
+  gap: 8px;
+  background: rgba(10, 10, 30, 0.4);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  padding: 8px;
+  pointer-events: all;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 40px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(138, 43, 226, 0.15), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-item:hover::before {
+  opacity: 1;
+}
+
+.nav-item:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(138, 43, 226, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(138, 43, 226, 0.2);
+}
+
+.nav-item.active {
+  background: rgba(138, 43, 226, 0.15);
+  border-color: rgba(138, 43, 226, 0.4);
+  color: #e8e6e3;
+  box-shadow: 
+    0 0 20px rgba(138, 43, 226, 0.3),
+    inset 0 0 20px rgba(138, 43, 226, 0.1);
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.nav-item:hover .nav-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.nav-item.active .nav-icon {
+  transform: scale(1.15);
+}
+
+.nav-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.nav-label {
+  white-space: nowrap;
+  text-transform: lowercase;
+  text-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-navigation {
+    top: 20px;
+  }
+  
+  .nav-items {
+    gap: 4px;
+    padding: 6px;
+  }
+  
+  .nav-item {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    gap: 8px;
+  }
+  
+  .nav-label {
+    display: none;
+  }
+  
+  .nav-icon {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 /* =========================
@@ -133,7 +271,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 0;
+  z-index: 5;  /* Erhöht, damit Tunnel über Content bleibt */
   perspective: 1000px;
   overflow: hidden;
   pointer-events: none;
@@ -158,19 +296,21 @@ body {
 .wrapper {
   position: relative;
   width: 100%;
-  z-index: 1;
+  z-index: 1;  /* Unter Tunnel (z-index: 5) */
 }
 
 .content {
   position: relative;
   width: 100%;
   overflow-x: hidden;
+  z-index: 1;  /* Unter Tunnel */
 }
 
 .content .section {
   width: 100%;
   height: 100vh;
   position: relative;
+  z-index: 1;  /* Alle Sektionen unter Tunnel */
 }
 
 /* =========================
@@ -201,6 +341,7 @@ body {
   font-size: 1.2rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .hero .title .big {
@@ -211,6 +352,8 @@ body {
   letter-spacing: 0.05em;
   margin-top: 0.5em;
   line-height: 1.1;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
+               0 0 40px rgba(138, 43, 226, 0.3);
 }
 
 /* =========================
@@ -232,6 +375,7 @@ body {
   text-align: center;
   pointer-events: none;
   display: none;
+  width: 400px;
 }
 
 .planet-title {
@@ -242,6 +386,7 @@ body {
   text-transform: uppercase;
   color: #999;
   margin-bottom: 5px;
+  text-align: center;
 }
 
 .planet-name {
@@ -254,6 +399,8 @@ body {
   padding-bottom: 15px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.3);
   display: inline-block;
+  text-align: center;
+  width: 100%;
 }
 
 .planet-description {
@@ -264,6 +411,9 @@ body {
   margin-bottom: 20px;
   max-width: 400px;
   line-height: 1.5;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .planet-button {
@@ -280,6 +430,7 @@ body {
   pointer-events: all;
   backdrop-filter: blur(10px);
   text-transform: lowercase;
+  display: inline-block;
 }
 
 .planet-button:hover {
@@ -290,7 +441,7 @@ body {
 }
 
 /* =========================
-   PLANET DETAIL MODAL
+   PLANET DETAIL MODAL (Neues Design wie Screenshot)
    ========================= */
 #planet-detail-modal {
   position: fixed;
@@ -298,17 +449,18 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.95);
+  /* Durchgehender Glassmorphism-Hintergrund */
+  background: rgba(10, 10, 30, 0.4);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
   z-index: 2000;
   display: none;
   opacity: 0;
-  transition: opacity 0.5s ease;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #planet-detail-modal.active {
-  display: flex;
+  display: block;
   opacity: 1;
 }
 
@@ -316,14 +468,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1400px;
-  width: 90%;
-  margin: auto;
-  padding: 60px;
-  gap: 80px;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  outline: none;
   opacity: 0;
-  transform: scale(0.9);
-  transition: all 0.5s ease 0.2s;
+  transform: scale(0.98);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 #planet-detail-modal.active .modal-content {
@@ -332,53 +488,92 @@ body {
 }
 
 .modal-left {
-  flex: 1;
+  flex: 0 0 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 100px 0 120px;
   text-align: left;
+  /* KEINE Animation am Container - nur Texte animieren */
+  background: transparent;
+}
+
+.modal-left * {
+  pointer-events: auto;
 }
 
 .modal-right {
-  flex: 1;
+  flex: 0 0 50%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+  /* KEIN Hintergrund */
+  background: transparent;
+}
+
+#planet-detail-modal.active .modal-right {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .modal-planet-canvas {
   width: 600px;
   height: 600px;
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 0;
+  filter: drop-shadow(0 0 80px rgba(255, 255, 255, 0.4)) 
+          drop-shadow(0 0 160px rgba(255, 255, 255, 0.2));
+  /* Verhindere Unschärfe */
+  image-rendering: auto;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 .close-button {
   position: absolute;
-  top: 40px;
-  left: 40px;
+  top: 50px;
+  left: 50px;
   width: 60px;
   height: 60px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
   z-index: 2001;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+#planet-detail-modal.active .close-button {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: 0.5s;
 }
 
 .close-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.6);
-  transform: rotate(90deg);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: scale(1.1);
 }
 
 .close-button::before,
 .close-button::after {
   content: '';
   position: absolute;
-  width: 24px;
+  width: 20px;
   height: 2px;
-  background: #e8e6e3;
+  background: #fff;
+  transition: all 0.3s ease;
 }
 
 .close-button::before {
@@ -392,40 +587,70 @@ body {
 .modal-small-title {
   font-family: 'Satoshi', sans-serif;
   font-weight: 300;
-  font-size: 1rem;
-  letter-spacing: 0.3em;
+  font-size: 0.9rem;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: #999;
-  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 15px;
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: opacity 1s ease-out 0.2s, transform 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s;
+}
+
+#planet-detail-modal.active .modal-small-title {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .modal-planet-title {
   font-family: 'Ethnocentric', sans-serif;
-  font-size: 5rem;
-  color: #e8e6e3;
-  margin-bottom: 20px;
+  font-size: 5.5rem;
+  color: #fff;
+  margin-bottom: 40px;
   letter-spacing: 0.05em;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-  line-height: 1.1;
+  text-shadow: 
+    0 0 40px rgba(255, 255, 255, 0.4),
+    0 0 80px rgba(255, 255, 255, 0.2);
+  line-height: 1;
+  opacity: 0;
+  transform: translateX(-120px);
+  transition: opacity 1.2s ease-out 0.4s, transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s;
+}
+
+#planet-detail-modal.active .modal-planet-title {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .modal-planet-title::after {
   content: '';
   display: block;
-  width: 300px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.3);
-  margin-top: 30px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), transparent);
+  margin-top: 35px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1) 0.9s;
+}
+
+#planet-detail-modal.active .modal-planet-title::after {
+  width: 250px;
 }
 
 .modal-planet-description {
   font-family: 'Satoshi', sans-serif;
   font-weight: 300;
   font-size: 1.1rem;
-  color: #ccc;
-  line-height: 1.8;
-  max-width: 600px;
-  margin-top: 30px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.9;
+  max-width: 580px;
+  opacity: 0;
+  transform: translateX(-80px);
+  transition: opacity 1s ease-out 0.6s, transform 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s;
+}
+
+#planet-detail-modal.active .modal-planet-description {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* =========================
@@ -437,6 +662,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* =========================
+   ASTEROID SECTION - SMOOTH ENTRY
+   ========================= */
+.section.asteroid-section {
+  background: transparent;
+  min-height: 150vh; /* Größer damit Titel und Cards Platz haben */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible; /* Damit nichts abgeschnitten wird */
 }
 
 /* =========================
@@ -527,21 +765,67 @@ body {
   from { transform: rotateY(360deg); }
   to { transform: rotateY(0deg); }
 }
+/* --- Smooth Modal Text Animations from Left --- */
 
+.modal-small-title, 
+.modal-planet-title, 
+.modal-planet-description {
+  opacity: 0 !important;
+  transform: translateX(-100px) !important;
+  transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+              opacity 0.8s ease-out !important;
+}
+
+#planet-detail-modal.active .modal-small-title,
+#planet-detail-modal.active .modal-planet-title,
+#planet-detail-modal.active .modal-planet-description {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+}
+
+/* Zeitverzögerungen für gestaffeltes Einblenden */
+#planet-detail-modal.active .modal-small-title { transition-delay: 0.2s; }
+#planet-detail-modal.active .modal-planet-title { transition-delay: 0.35s; }
+#planet-detail-modal.active .modal-planet-description { transition-delay: 0.5s; }
 /* =========================
    SCROLL INDICATOR
    ========================= */
 .scroll-indicator {
   position: fixed;
-  bottom: 40px;
+  bottom: -70px;  /* Zur Hälfte abgeschnitten! */
   left: 50%;
   transform: translateX(-50%);
   z-index: 1001;
   text-align: center;
   color: #fff;
   font-family: 'Satoshi', sans-serif;
-  opacity: 0.7;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  /* Glassmorphism Container */
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  /* Glass Effect */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37),
+              inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.scroll-indicator:hover {
+  bottom: -65px;  /* Kommt leicht hoch beim Hover */
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 40px 0 rgba(138, 43, 226, 0.3),
+              inset 0 0 20px rgba(255, 255, 255, 0.08);
 }
 
 .scroll-indicator.hidden {
@@ -550,8 +834,10 @@ body {
 }
 
 .scroll-arrow {
-  font-size: 2rem;
+  font-size: 32px;
   animation: bounce 2s infinite;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: -40px;  /* Pfeil viel weiter oben in der sichtbaren Hälfte */
 }
 
 @keyframes bounce {
@@ -564,4 +850,68 @@ body {
   60% {
     transform: translateY(-5px);
   }
+}
+
+/* =========================
+   FACT CARDS HOVER EFFECT
+   ========================= */
+.fact-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.fact-card:hover {
+  transform: translateY(-8px) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(138, 43, 226, 0.4) !important;
+  box-shadow: 0 12px 40px 0 rgba(138, 43, 226, 0.3), 
+              inset 0 0 25px rgba(138, 43, 226, 0.08) !important;
+}
+
+/* =========================
+   EXIT TUNNEL SECTION
+   ========================= */
+.exit-tunnel-section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: transparent;  /* Transparent damit Tunnel durchscheint */
+  z-index: 1;  /* Unter Tunnel (z-index: 5) */
+}
+
+.exit-content {
+  position: relative;
+  z-index: 10;  /* Über Tunnel - Text soll sichtbar sein */
+  text-align: center;
+}
+
+.exit-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.exit-title .exit-small {
+  font-family: 'Satoshi', sans-serif;
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.exit-title .exit-big {
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: clamp(3rem, 10vw, 8rem);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
+               0 0 40px rgba(138, 43, 226, 0.3);
 }
