@@ -1261,7 +1261,7 @@ updateActiveNav();
     scrub: true,
     onUpdate: (self) => {
       // Triggere bei 75% des Scroll-Progress - mehr Abstand zum Planeten-Wheel
-      if (self.progress > 0.75 && !hasAnimated && asteroid) {
+      if (self.progress > 0.60 && !hasAnimated && asteroid) {
         hasAnimated = true;
         console.log('🪨 Starting asteroid animation from RIGHT! Progress:', self.progress);
         
