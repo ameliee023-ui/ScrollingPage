@@ -243,21 +243,21 @@ body {
    ========================= */
 @font-face {
   font-family: 'Ethnocentric';
-  src: url('fonts/ethnocentric-rg.woff2') format('woff2');
+  src: url('fonts/ethnocentric-rg.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Satoshi';
-  src: url('fonts/Satoshi-Light.woff2') format('woff2');
+  src: url('fonts/Satoshi-Light.otf') format('opentype');
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Satoshi';
-  src: url('fonts/Satoshi-Regular.woff2') format('woff2');
+  src: url('fonts/Satoshi-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
 }
