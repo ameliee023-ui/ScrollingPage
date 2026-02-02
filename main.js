@@ -16,6 +16,8 @@ space.innerHTML = `
 console.clear();
 gsap.registerPlugin(ScrollTrigger);
 
+const mainNav = document.querySelector('.main-navigation');
+
 gsap.timeline({
   scrollTrigger: {
     trigger: '.wrapper',
@@ -23,7 +25,15 @@ gsap.timeline({
     end: '+=300%',
     pin: true,
     scrub: true,
-    markers: false
+    markers: false,
+    onUpdate: (self) => {
+      // Show navigation after 30% of tunnel animation
+      if (self.progress > 0.3) {
+        mainNav.classList.add('visible');
+      } else {
+        mainNav.classList.remove('visible');
+      }
+    }
   }
 })
 .to('.tunnel img', {
@@ -355,6 +365,22 @@ let tY = 10;
 const carouselSection = document.getElementById('carousel-section');
 const scrollIndicator = document.getElementById('scroll-indicator');
 
+// Hide scroll indicator permanently after first scroll
+let hasScrolledOnce = false;
+window.addEventListener('scroll', () => {
+  if (!hasScrolledOnce && window.scrollY > 50) {
+    hasScrolledOnce = true;
+    gsap.to(scrollIndicator, {
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.out',
+      onComplete: () => {
+        scrollIndicator.style.display = 'none';
+      }
+    });
+  }
+});
+
 function applyTransform(obj) {
   if(tY > 180) tY = 180;
   if(tY < 0) tY = 0;
@@ -366,15 +392,30 @@ applyTransform(odrag);
 
 let hasCompletedRotation = false;
 let isCarouselActive = false;
+let previousCarouselState = false;
 
 // Prüfe ob Carousel aktiv ist
 function checkCarouselActive() {
   const carouselRect = carouselSection.getBoundingClientRect();
   isCarouselActive = carouselRect.top <= 100 && carouselRect.bottom >= window.innerHeight - 100;
   
+  // Reset carousel wenn wir die Section verlassen haben
+  if (previousCarouselState && !isCarouselActive) {
+    console.log('🔄 Resetting carousel...');
+    hasCompletedRotation = false;
+    carouselLocked = false;
+    currentRotation = 0;
+    tX = 0;
+    tY = 10;
+    applyTransform(odrag);
+    console.log('✓ Carousel reset complete');
+  }
+  
+  previousCarouselState = isCarouselActive;
+  
   if (isCarouselActive && !hasCompletedRotation) {
     scrollIndicator.classList.add('hidden');
-  } else if (!isCarouselActive) {
+  } else if (!isCarouselActive && !hasScrolledOnce) {
     scrollIndicator.classList.remove('hidden');
   }
 }
@@ -1251,6 +1292,55 @@ updateActiveNav();
   
   // Variable um zu tracken ob Animation schon gelaufen ist
   let hasAnimated = false;
+  let asteroidTimeline = null;
+  let orbitRing = null;
+  let asteroidTitle = null;
+  let asteroidFacts = null;
+  
+  // Reset-Funktion für Asteroid Animation
+  function resetAsteroidAnimation() {
+    console.log('🔄 Resetting asteroid animation...');
+    
+    // Kill timeline wenn vorhanden
+    if (asteroidTimeline) {
+      asteroidTimeline.kill();
+      asteroidTimeline = null;
+    }
+    
+    // Entferne Orbit Ring
+    if (orbitRing) {
+      orbitRing.remove();
+      orbitRing = null;
+    }
+    
+    // Entferne Title
+    if (asteroidTitle) {
+      asteroidTitle.remove();
+      asteroidTitle = null;
+    }
+    
+    // Entferne Facts
+    if (asteroidFacts) {
+      asteroidFacts.remove();
+      asteroidFacts = null;
+    }
+    
+    // Reset Asteroid Position
+    if (asteroid) {
+      asteroid.visible = false;
+      asteroid.rotation.set(0, 0, 0);
+      gsap.set(canvas.style, {
+        left: '150%',
+        top: '45%'
+      });
+    }
+    
+    // Reset States
+    hasAnimated = false;
+    animationStarted = false;
+    
+    console.log('✓ Asteroid animation reset complete');
+  }
   
   // Wir müssen auf den SCROLL-PROGRESS der gepinnten Wrapper reagieren
   // Da Wrapper für 300% gepinnt ist, müssen wir weit nach hinten triggern
@@ -1260,6 +1350,11 @@ updateActiveNav();
     end: '+=300%',               // Wrapper ist für 300% gepinnt
     scrub: true,
     onUpdate: (self) => {
+      // Reset wenn wir vor 65% sind
+      if (self.progress < 0.65 && hasAnimated) {
+        resetAsteroidAnimation();
+      }
+      
       // Triggere bei 65% des Scroll-Progress - früher Start für mehr Zeit
       if (self.progress > 0.65 && !hasAnimated && asteroid) {
         hasAnimated = true;
@@ -1271,7 +1366,7 @@ updateActiveNav();
         
         // GSAP Animation: Weltraum-Flugbahn mit Kurve!
         // Timeline für synchronisierte Bewegung
-        const asteroidTimeline = gsap.timeline();
+        asteroidTimeline = gsap.timeline();
         
         // Horizontale Bewegung von rechts zur Mitte
         asteroidTimeline.fromTo(canvas.style, 
@@ -1329,6 +1424,7 @@ updateActiveNav();
     
     // Erstelle SVG für den Orbit-Ring
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    orbitRing = svg; // Store reference for cleanup
     svg.style.position = 'fixed';
     svg.style.top = '69%';   // ← Y-POSITION (vertikal): 65% = weiter unten, 50% = Mitte, 30% = oben
     svg.style.left = '49%';  // ← X-POSITION (horizontal): 50% = Mitte, 60% = rechts, 40% = links
@@ -1378,6 +1474,7 @@ updateActiveNav();
     
     // Erstelle Überschrift Container
     const titleContainer = document.createElement('div');
+    asteroidTitle = titleContainer; // Store reference for cleanup
     titleContainer.id = 'asteroid-title';
     titleContainer.style.position = 'absolute';
     titleContainer.style.left = '10%';
@@ -1474,6 +1571,7 @@ updateActiveNav();
     
     // Container für alle Cards
     const factsContainer = document.createElement('div');
+    asteroidFacts = factsContainer; // Store reference for cleanup
     factsContainer.id = 'asteroid-facts-container';
     factsContainer.style.position = 'absolute';
     factsContainer.style.bottom = '40%'; // Viel weiter oben (war 5%)

@@ -31,6 +31,13 @@ body {
   transform: translateX(-50%);
   z-index: 9999;  /* Immer ganz oben */
   pointer-events: none;
+  opacity: 0;  /* Start hidden */
+  transition: opacity 0.8s ease;
+}
+
+.main-navigation.visible {
+  opacity: 1;
+  pointer-events: none;
 }
 
 .nav-items {
